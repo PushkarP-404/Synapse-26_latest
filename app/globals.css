@@ -246,13 +246,3 @@ html.lenis body {
     transform: scaleY(calc(var(--base-scale) * 0.6));
   }
 }
-
-.joker-section {
-  perspective: 1200px;
-}
-
-.joker-image-left,
-.joker-image-right {
-  transform: translateZ(40px);
-  filter: drop-shadow(0 30px 60px rgba(0,0,0,0.35));
-}

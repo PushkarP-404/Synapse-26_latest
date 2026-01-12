@@ -22,6 +22,7 @@ export default function RegisterPage() {
               className="object-contain"
               priority
             />
+            </Link>
           </div>
         </div>
 

@@ -21,6 +21,7 @@ const navItems = [
     { name: "accomodation", link: "/accomodation" },
     { name: "merchandise", link: "/merchandise" },
     { name: "sponsors", link: "/sponsors" },
+    { name: "teams", link: "/teams" },
     { name: "terms and conditions", link: "/terms-and-conditions" },
     { name: "contact us", link: "#contact", isContact: true },
     { name: "register", link: "/auth" },

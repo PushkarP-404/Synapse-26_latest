@@ -1,66 +1,25 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { IconMenu3, IconX } from "@tabler/icons-react";
-import {
-  motion,
-  AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import React, { forwardRef, useState } from "react";
 
-import React, { useRef, useState, forwardRef } from "react";
-
-interface NavbarProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-interface NavBodyProps {
-  children: React.ReactNode;
-  className?: string;
-  visible?: boolean;
-}
-
-interface NavItemsProps {
-  items: {
-    name: string;
-    link: string;
-  }[];
-  className?: string;
-  onItemClick?: () => void;
-}
-
-interface MobileNavProps {
-  children: React.ReactNode;
-  className?: string;
-  visible?: boolean;
-}
-
-interface MobileNavHeaderProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-interface MobileNavMenuProps {
-  children: React.ReactNode;
-  className?: string;
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-interface AnimatedMenuItemProps {
-  name: string;
-  link: string;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-}
+/* =====================================================
+   NAVBAR
+===================================================== */
 
 export const Navbar = ({
   children,
   className,
-  visible = false
-}: NavbarProps & { visible?: boolean }) => {
+  visible = true,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  visible?: boolean;
+}) => {
   return (
     <motion.div
       className={cn("fixed inset-x-0 top-0 z-40 w-full", className)}
@@ -68,7 +27,7 @@ export const Navbar = ({
       animate={{
         opacity: visible ? 1 : 0,
         y: visible ? 0 : -80,
-        pointerEvents: visible ? "auto" : "none"
+        pointerEvents: visible ? "auto" : "none",
       }}
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
@@ -77,29 +36,30 @@ export const Navbar = ({
   );
 };
 
-export const NavBody = ({ children, className, visible }: NavBodyProps) => {
+/* =====================================================
+   DESKTOP NAV BODY (BIGGER)
+===================================================== */
+
+export const NavBody = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
     <motion.div
       animate={{
-        backdropFilter: visible ? "blur(12px)" : "blur(4px)",
-        boxShadow: visible
-          ? "0 4px 30px rgba(235, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
-          : "none",
-        width: visible ? "80%" : "100%",
-        y: visible ? 20 : 0,
+        backdropFilter: "blur(14px)",
+        boxShadow:
+          "0 6px 40px rgba(235,0,0,0.18), 0 0 0 1px rgba(255,255,255,0.12)",
+        width: "90%",
+        y: 18,
       }}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 50,
-      }}
-      style={{
-        minWidth: "800px",
-      }}
+      transition={{ type: "spring", stiffness: 180, damping: 35 }}
       className={cn(
-        "relative z-[150] mx-auto hidden w-full max-w-[95vw] flex-row items-center justify-between self-start rounded-full bg-black/40 px-6 py-3 lg:flex border border-white/10",
-        visible && "bg-black/80",
-        className,
+        "relative z-[150] mx-auto hidden lg:flex items-center justify-between rounded-full bg-black/70 border border-white/10 px-10 py-5",
+        className
       )}
     >
       {children}
@@ -107,157 +67,96 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
   );
 };
 
-export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
+/* =====================================================
+   DESKTOP NAV ITEMS
+===================================================== */
+
+export const NavItems = ({
+  items,
+  className,
+  onItemClick,
+}: {
+  items: { name: string; link: string }[];
+  className?: string;
+  onItemClick?: () => void;
+}) => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <motion.div
+    <div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-white/90 transition duration-200 lg:flex lg:space-x-2",
-        className,
+        "absolute inset-0 hidden lg:flex items-center justify-center gap-4",
+        className
       )}
     >
       {items.map((item, idx) => (
         <Link
-          onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
-          className="relative px-4 py-2 text-white/80 hover:text-white transition-colors duration-200"
-          key={`link-${idx}`}
+          key={idx}
           href={item.link}
           scroll={false}
+          onMouseEnter={() => setHovered(idx)}
+          onClick={onItemClick}
+          className="relative px-5 py-3 text-white/80 hover:text-white"
         >
           {hovered === idx && (
             <motion.div
-              layoutId="hovered"
-              className="absolute inset-0 h-full w-full rounded-full bg-[#EB0000]/20 border border-[#EB0000]/40"
+              layoutId="nav-hover"
+              className="absolute inset-0 rounded-full bg-[#EB0000]/20 border border-[#EB0000]/40"
             />
           )}
-          <span className="relative z-20 font-joker text-lg tracking-wide">{item.name}</span>
+          <span className="relative z-10 font-joker text-xl tracking-wide">
+            {item.name}
+          </span>
         </Link>
       ))}
-    </motion.div>
+    </div>
   );
 };
 
-export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
+/* =====================================================
+   MOBILE NAV (EXPORTED ✅)
+===================================================== */
+
+export const MobileNav = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <motion.div
-      animate={{
-        boxShadow: visible
-          ? "0 4px 30px rgba(235, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
-          : "none",
-        width: visible ? "0px" : "100%",
-        paddingRight: visible ? "12px" : "0px",
-        paddingLeft: visible ? "12px" : "0px",
-        y: visible ? 20 : 0,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 50,
-      }}
-      className={cn(
-        "relative z-50 mx-auto flex w-full flex-col items-center justify-between px-4",
-        visible,
-        className,
-      )}
-    >
+    <div className={cn("relative z-50 w-full px-5 pt-4", className)}>
       {children}
-    </motion.div>
-  );
-};
-
-export const MobileAnimatedMenuItem = ({
-  name,
-  link,
-  onClick,
-}: AnimatedMenuItemProps) => {
-  return (
-    <Link
-      href={link}
-      onClick={(e) => onClick?.(e)}
-      className="
-        group w-full
-        grid grid-cols-[1fr_auto] items-center
-        cursor-pointer select-none
-        text-white font-joker
-      "
-    >
-      {/* TEXT */}
-      <div className="relative overflow-hidden h-[clamp(32px,7vw,64px)]">
-        {/* DEFAULT */}
-        <span
-          className="
-            absolute inset-0
-            translate-y-0
-            transition-transform duration-500 ease-out
-            group-hover:-translate-y-full
-            text-[clamp(18px,4.5vw,42px)]
-            leading-[clamp(32px,7vw,64px)]
-            group-hover:text-[#EB0000]
-            font-joker
-          "
-        >
-          {name}
-        </span>
-
-        {/* HOVER */}
-        <span
-          className="
-            absolute inset-0
-            translate-y-full
-            transition-transform duration-500 ease-out
-            group-hover:translate-y-0
-            text-[clamp(18px,4.5vw,42px)]
-            leading-[clamp(32px,7vw,64px)]
-            group-hover:text-[#EB0000]
-            font-joker
-          "
-        >
-          {name}
-        </span>
-      </div>
-
-      {/* ARROW */}
-      <span
-        className="
-          ml-[clamp(8px,1.5vw,16px)]
-          text-[clamp(20px,5vw,48px)]
-          transition-all duration-300 ease-out
-          group-hover:translate-x-1.5
-          group-hover:text-[#EB0000]
-        "
-      >
-        ↗
-      </span>
-    </Link>
+    </div>
   );
 };
 
 export const MobileNavHeader = ({
   children,
   className,
-}: MobileNavHeaderProps) => {
-  return (
-    <div
-      className={cn(
-        "flex w-full px-4 py-2 flex-row items-center justify-between",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-};
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div className={cn("flex items-center justify-between py-4", className)}>
+    {children}
+  </div>
+);
+
+/* =====================================================
+   MOBILE MENU (TALLER)
+===================================================== */
 
 export const MobileNavMenu = forwardRef<
   HTMLDivElement,
-  MobileNavMenuProps
->(function MobileNavMenu(
-  { children, className, isOpen },
-  ref
-) {
+  {
+    children: React.ReactNode;
+    className?: string;
+    isOpen: boolean;
+    onClose: () => void;
+  }
+>(function MobileNavMenu({ children, className, isOpen }, ref) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -267,11 +166,9 @@ export const MobileNavMenu = forwardRef<
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className={cn(
-            "absolute inset-x-0 top-5 max-h-[70vh] overflow-y-auto z-150 flex w-[calc(100%-130px)] flex-col left-[75px] items-start justify-start gap-4 rounded-lg bg-black/95 px-4 py-8 border border-white/10 shadow-[0_4px_30px_rgba(235,0,0,0.15)] overscroll-contain",
-            className,
+            "absolute top-20 left-4 right-4 max-h-[85vh] overflow-y-auto rounded-xl bg-black/95 border border-white/10 px-6 py-10 flex flex-col gap-6 shadow-[0_10px_40px_rgba(235,0,0,0.2)]",
+            className
           )}
-          onWheel={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
         >
           {children}
         </motion.div>
@@ -280,37 +177,77 @@ export const MobileNavMenu = forwardRef<
   );
 });
 
+/* =====================================================
+   MOBILE MENU ITEM
+===================================================== */
+
+export const MobileAnimatedMenuItem = ({
+  name,
+  link,
+  onClick,
+}: {
+  name: string;
+  link: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+}) => (
+  <Link
+    href={link}
+    onClick={onClick}
+    className="flex items-center justify-between font-joker text-white"
+  >
+    <span className="text-[clamp(22px,5vw,42px)] hover:text-[#EB0000] transition">
+      {name}
+    </span>
+    <span className="text-[clamp(22px,5vw,42px)] hover:text-[#EB0000] transition">
+      ↗
+    </span>
+  </Link>
+);
+
+/* =====================================================
+   TOGGLE
+===================================================== */
+
 export const MobileNavToggle = ({
   isOpen,
   onClick,
 }: {
   isOpen: boolean;
   onClick: () => void;
-}) => {
-  return isOpen ? (
-    <IconX size={35} className="text-white cursor-pointer hover:text-[#EB0000] transition-colors" onClick={onClick} />
+}) =>
+  isOpen ? (
+    <IconX
+      size={38}
+      className="text-white cursor-pointer hover:text-[#EB0000]"
+      onClick={onClick}
+    />
   ) : (
-    <IconMenu3 size={35} className="text-white scale-[0.9] md:scale-[1] cursor-pointer hover:text-[#EB0000] transition-colors" onClick={onClick} />
+    <IconMenu3
+      size={38}
+      className="text-white cursor-pointer hover:text-[#EB0000]"
+      onClick={onClick}
+    />
   );
-};
 
-export const NavbarLogo = () => {
-  return (
-    <Link
-      href="/"
-      className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white"
-    >
-      <Image
-        src="/Synapse Logo.png"
-        alt="Synapse Logo"
-        width={35}
-        height={35}
-        className="w-auto h-[35px] md:h-[45px]"
-        priority
-      />
-    </Link>
-  );
-};
+/* =====================================================
+   LOGO
+===================================================== */
+
+export const NavbarLogo = () => (
+  <Link href="/" className="flex items-center">
+    <Image
+      src="/Synapse Logo.png"
+      alt="Synapse Logo"
+      width={48}
+      height={48}
+      priority
+    />
+  </Link>
+);
+
+/* =====================================================
+   ✅ NAVBAR BUTTON (RESTORED)
+===================================================== */
 
 type NavbarVariant =
   | "primary"
@@ -319,52 +256,36 @@ type NavbarVariant =
   | "gradient"
   | "register";
 
-interface NavbarButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  href?: string;
-  variant?: NavbarVariant;
-}
-export const NavbarButton: React.FC<NavbarButtonProps> = ({
+export const NavbarButton = ({
   href,
   children,
   className,
   variant = "primary",
   ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  href?: string;
+  variant?: NavbarVariant;
 }) => {
-  const baseStyles =
-    "px-6 py-2 rounded-[10px] text-sm font-bold relative cursor-pointer transition-all duration-300 inline-block text-center font-['Roboto',sans-serif]";
+  const base =
+    "px-6 py-3 rounded-[10px] text-sm font-bold transition-all duration-300";
 
-  const variantStyles: Record<NavbarVariant, string> = {
+  const variants: Record<NavbarVariant, string> = {
     primary:
-      "bg-transparent text-white border-2 border-white shadow-[6px_6px_0px_#EB0000] hover:bg-[#EB0000] hover:text-black hover:border-black hover:shadow-[6px_6px_0px_rgba(255,255,255,0.7)] hover:-translate-y-0.5",
-
-    secondary:
-      "bg-transparent text-white/80 hover:text-white border-0",
-
+      "border-2 border-white text-white shadow-[6px_6px_0px_#EB0000] hover:bg-[#EB0000] hover:text-black",
+    secondary: "text-white/80 hover:text-white",
     dark:
-      "bg-black text-white border-2 border-white shadow-[6px_6px_0px_#EB0000] hover:bg-[#EB0000] hover:text-black hover:border-black",
-
+      "bg-black text-white border-2 border-white hover:bg-[#EB0000] hover:text-black",
     gradient:
-      "bg-transparent text-white border-2 border-white shadow-[6px_6px_0px_#EB0000] hover:bg-[#EB0000] hover:text-black hover:border-black hover:shadow-[6px_6px_0px_rgba(255,255,255,0.7)] hover:-translate-y-0.5 hover:scale-105",
-
+      "border-2 border-white text-white hover:bg-[#EB0000] hover:text-black",
     register:
-      "max-[450px]:-translate-x-1/2 max-[450px]:translate-y-1/2 text-[clamp(1.25rem,4vw,1.875rem)] border-[5px] border-white rounded-[10px] bg-black text-white shadow-[10px_10px_0px_#EB0000] hover:bg-[#EB0000] hover:text-black hover:border-black hover:scale-105 hover:shadow-[10px_10px_0px_rgba(255,255,255,0.7)] font-normal font-jqka",
+      "text-lg border-[4px] border-white bg-black text-white shadow-[10px_10px_0px_#EB0000] hover:bg-[#EB0000] hover:text-black font-jqka",
   };
 
   const button = (
-    <button
-      className={cn(baseStyles, variantStyles[variant], className)}
-      {...props}
-    >
+    <button className={cn(base, variants[variant], className)} {...props}>
       {children}
     </button>
   );
 
-  if (!href) return button;
-
-  return (
-    <Link href={href} prefetch>
-      {button}
-    </Link>
-  );
+  return href ? <Link href={href}>{button}</Link> : button;
 };
